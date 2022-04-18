@@ -1,6 +1,7 @@
 package com.nanos.ecom.product.service;
 
 import com.nanos.ecom.product.entity.Product;
+import com.nanos.ecom.product.entity.ProductImage;
 import com.nanos.ecom.product.exception.ProductNotFoundException;
 import com.nanos.ecom.product.model.ProductDto;
 import com.nanos.ecom.product.repository.ProductRepository;
@@ -22,9 +23,17 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public void addProduct(ProductDto productDto) {
         Product product = new Product();
+        List<ProductImage> productImages = productDto.getProductImages();
+        productDto.setProductImages(null);
         BeanUtils.copyProperties(productDto,product);
+        product=productRepository.save(product);
+        for (int i=0;i<productImages.size();i++){
+            productImages.get(i).setProduct(product);
+        }
+        product.setProductImages(productImages);
         productRepository.save(product);
     }
+
 
     @Override
     public List<ProductDto> getAllProduct() {
@@ -48,4 +57,7 @@ public class ProductServiceImpl implements ProductService {
             throw new ProductNotFoundException("Product with id "+id+" not found in DB");
         }
     }
+
+
+
 }

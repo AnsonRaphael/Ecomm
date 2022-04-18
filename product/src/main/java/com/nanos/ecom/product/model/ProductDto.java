@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 @Data
 public class ProductDto {
-    private Long id;
+    private Long productId;
     private ProductType productType;
 
     private List<ProductImage> productImages;
