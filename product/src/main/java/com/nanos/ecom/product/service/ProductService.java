@@ -5,7 +5,7 @@ import com.nanos.ecom.product.model.ProductDto;
 import java.util.List;
 
 public interface ProductService {
-    void addProduct(ProductDto productDto);
+    ProductDto addProduct(ProductDto productDto);
 
     List<ProductDto> getAllProduct();
 

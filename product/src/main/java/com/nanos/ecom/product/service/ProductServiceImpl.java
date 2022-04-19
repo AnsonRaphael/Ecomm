@@ -2,8 +2,11 @@ package com.nanos.ecom.product.service;
 
 import com.nanos.ecom.product.entity.Product;
 import com.nanos.ecom.product.entity.ProductImage;
+import com.nanos.ecom.product.entity.categories.Category;
 import com.nanos.ecom.product.exception.ProductNotFoundException;
+import com.nanos.ecom.product.model.CategoryDto;
 import com.nanos.ecom.product.model.ProductDto;
+import com.nanos.ecom.product.repository.CategoryRepository;
 import com.nanos.ecom.product.repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -19,19 +22,25 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
 
     private ProductRepository productRepository;
+    private CategoryRepository categoryRepository;
     @Override
     @Transactional
-    public void addProduct(ProductDto productDto) {
+    public ProductDto addProduct(ProductDto productDto) {
         Product product = new Product();
         List<ProductImage> productImages = productDto.getProductImages();
         productDto.setProductImages(null);
         BeanUtils.copyProperties(productDto,product);
+        Optional<Category> categoryOptional = categoryRepository.findById(productDto.getCategory().getCategoryId());
+        if(categoryOptional.isPresent())
+            product.setCategory(categoryOptional.get());
         product=productRepository.save(product);
         for (int i=0;i<productImages.size();i++){
             productImages.get(i).setProduct(product);
         }
         product.setProductImages(productImages);
-        productRepository.save(product);
+        product=productRepository.save(product);
+        BeanUtils.copyProperties(product,productDto);
+        return productDto;
     }
 
 
@@ -40,7 +49,9 @@ public class ProductServiceImpl implements ProductService {
         List<Product> products = productRepository.findAll();
         List<ProductDto> productsDtos = products.stream().map(product -> {
             ProductDto productDto = new ProductDto();
+            productDto.setCategory(new CategoryDto());
             BeanUtils.copyProperties(product, productDto);
+            productDto.getCategory().setCategoryId(product.getCategory().getCategoryId());
             return productDto;
         }).collect(Collectors.toList());
         return productsDtos;
@@ -51,7 +62,9 @@ public class ProductServiceImpl implements ProductService {
         Optional<Product> productOptional = productRepository.findById(id);
         if(productOptional.isPresent()){
             ProductDto productDto = new ProductDto();
+            productDto.setCategory(new CategoryDto());
             BeanUtils.copyProperties(productOptional.get(),productDto);
+            productDto.getCategory().setCategoryId(productOptional.get().getCategory().getCategoryId());
             return productDto;
         }else{
             throw new ProductNotFoundException("Product with id "+id+" not found in DB");

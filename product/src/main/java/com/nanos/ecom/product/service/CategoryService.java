@@ -6,7 +6,7 @@ import com.nanos.ecom.product.model.ProductDto;
 import java.util.List;
 
 public interface CategoryService {
-    void addCategory(CategoryDto categoryDto);
+    CategoryDto addCategory(CategoryDto categoryDto);
 
     List<CategoryDto> getAllCategory();
 
