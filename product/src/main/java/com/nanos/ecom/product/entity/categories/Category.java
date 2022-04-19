@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -22,9 +23,14 @@ public class Category {
     private Long categoryId;
     private String categoryName;
     private CategoryType categoryType;
-//    @ManyToMany()
-//
-//    private List<Category> childCategories;
+    @ManyToMany( cascade = CascadeType.ALL)
+    @JoinTable(name = "categoryRel",
+    joinColumns = {@JoinColumn(name = "categoryId")},
+    inverseJoinColumns = {@JoinColumn(name = "childCategoryId")}
+    )
+    private Set<Category> categories;
+    @ManyToMany(mappedBy = "categories")
+    private Set<Category> childCategories;
     @OneToMany(
             targetEntity = Product.class,
             cascade = CascadeType.ALL,
